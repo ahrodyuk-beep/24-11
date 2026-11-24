@@ -45,12 +45,17 @@ function renderMenu(items){
   resultCount.textContent=`Знайдено ${items.length} із ${loadedMenu.length} страв.`;
 }
 function applyFilters(){
-  // TODO 1: отримайте текст пошуку (trim, toLowerCase).
-  // TODO 2: отримайте категорію, ціну та стан перемикача.
-  // TODO 3: використайте loadedMenu.filter(...) з УСІМА чотирма умовами.
-  // TODO 4: передайте результат до renderMenu(...).
-  // Тимчасовий виклик нижче замініть власною реалізацією:
-  renderMenu(loadedMenu);
+  const searchText=searchInput.value.trim().toLowerCase();
+  const selectedCategory=categoryFilter.value;
+  const maxPriceText=priceFilter.value;
+  const maxPrice=maxPriceText==='all'||maxPriceText===''?null:Number(maxPriceText);
+  const filteredMenu=loadedMenu.filter(item=>{
+    const nameMatches=searchText===''||item.name.toLowerCase().includes(searchText);
+    const categoryMatches=selectedCategory==='all'||item.category===selectedCategory;
+    const priceMatches=maxPrice===null||item.price<=maxPrice;
+    return nameMatches&&categoryMatches&&priceMatches;
+  });
+  renderMenu(filteredMenu);
 }
 async function loadMenu(shouldFail=false){
   if(isLoading)return;
@@ -72,7 +77,9 @@ async function loadMenu(shouldFail=false){
     resultsElement.setAttribute('aria-busy','false');
   }
 }
-// TODO 5: підключіть події input/change до applyFilters().
+searchInput.addEventListener('input',applyFilters);
+categoryFilter.addEventListener('change',applyFilters);
+priceFilter.addEventListener('change',applyFilters);
 // TODO 6: реалізуйте скидання всіх чотирьох умов.
 loadButton.addEventListener('click',()=>loadMenu(false));
 errorButton.addEventListener('click',()=>loadMenu(true));
